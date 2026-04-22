@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>이게 가능? 찐력 테스트</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #fff9fb;
+            --main-pink: #ff85a1;
+            --main-blue: #4dabf7;
+            --main-yellow: #ffe066;
+            --main-purple: #be4bdb;
+            --text-dark: #2d3436;
+            --text-grey: #636e72;
+            --white: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0; padding: 0;
+            -webkit-font-smoothing: antialiased;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* 헤더 */
+        header {
+            padding: 15px 20px;
+            text-align: center;
+            background: var(--white);
+            border-bottom-left-radius: 25px;
+            border-bottom-right-radius: 25px;
+            box-shadow: 0 4px 10px rgba(255, 133, 161, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 50;
+        }
+
+        header h1 { font-size: 18px; font-weight: 900; color: var(--main-pink); }
+        .back-btn { background: #f1f3f5; border: none; padding: 8px 12px; border-radius: 12px; font-size: 12px; font-weight: 700; cursor: pointer; display: none; }
+
+        /* 메인 영역 */
+        main { flex: 1; position: relative; display: flex; flex-direction: column; }
+
+        /* 1. 카테고리 선택 화면 */
+        #category-view {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            overflow-y: auto;
+        }
+
+        .category-card {
+            background: white;
+            border-radius: 25px;
+            padding: 25px 15px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.03);
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .category-card:active { transform: scale(0.95); }
+        .category-card.active { border-color: var(--main-pink); }
+        .category-icon { width: 40px; height: 40px; margin-bottom: 10px; }
+        .category-name { font-size: 15px; font-weight: 800; }
+        .category-count { font-size: 11px; color: var(--text-grey); margin-top: 4px; }
+
+        /* 2. 카드 슬라이드 화면 */
+        #slide-view {
+            display: none;
+            flex: 1;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        .challenge-container {
+            width: 100%;
+            max-width: 400px;
+            height: 100%;
+            max-height: 520px;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .card {
+            width: 100%;
+            height: 100%;
+            background: var(--white);
+            border-radius: 35px;
+            padding: 30px 20px;
+            box-shadow: 0 15px 40px rgba(255, 133, 161, 0.1);
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        .nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            background: var(--white);
+            border: none;
+            border-radius: 50%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-prev { left: -10px; }
+        .btn-next { right: -10px; }
+
+        .question-text {
+            font-size: 20px;
+            font-weight: 800;
+            line-height: 1.5;
+            margin: 30px 0;
+            word-break: keep-all;
+        }
+
+        /* 투표 버튼 & 결과 */
+        .vote-btn {
+            width: 100%;
+            padding: 18px;
+            border-radius: 20px;
+            border: none;
+            font-size: 18px;
+            font-weight: 900;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+        .btn-yes { background: #e3faf3; color: #0ca678; }
+        .btn-no { background: #fff0f6; color: #d6336c; }
+        .vote-btn:active { transform: scale(0.97); }
+
+        .result-gauge {
+            display: none;
+            height: 50px;
+            border-radius: 20px;
+            overflow: hidden;
+            background: #f1f3f5;
+            margin-bottom: 20px;
+        }
+        .gauge-part { height: 100%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; transition: width 0.6s; }
+        .g-yes { background: #0ca678; color: white; }
+        .g-no { background: #d6336c; color: white; }
+
+        /* 바텀 시트 댓글 */
+        .bottom-sheet {
+            position: fixed;
+            bottom: -100%; left: 0; width: 100%; height: 85%;
+            background: white; z-index: 100;
+            border-top-left-radius: 35px; border-top-right-radius: 35px;
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.1);
+            transition: bottom 0.3s ease-out;
+            padding: 25px 20px;
+            display: flex; flex-direction: column;
+        }
+        .bottom-sheet.open { bottom: 0; }
+        .comment-item { background: #f8f9fa; padding: 15px; border-radius: 20px; margin-bottom: 15px; }
+        .comment-user { font-weight: 800; color: var(--main-pink); font-size: 13px; margin-bottom: 5px; display: block; }
+        .comment-actions { display: flex; gap: 10px; margin-top: 10px; }
+        .action-btn { background: white; border: 1px solid #eee; padding: 5px 12px; border-radius: 12px; font-size: 12px; font-weight: 700; cursor: pointer; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<header>
+    <button class="back-btn" id="back-home" onclick="goHome()">🏠 홈으로</button>
+    <h1>찐력 챌린지 ✨</h1>
+    <div style="width: 60px;"></div>
+</header>
+
+<main>
+    <!-- 1. 카테고리 선택 뷰 -->
+    <div id="category-view">
+        <div class="category-card" onclick="startTheme('연애')">
+            <div class="category-icon">💘</div>
+            <div class="category-name">연애 빌런</div>
+            <div class="category-count">12개 질문</div>
+        </div>
+        <div class="category-card" onclick="startTheme('사회')">
+            <div class="category-icon">🏢</div>
+            <div class="category-name">사회적 말살</div>
+            <div class="category-count">10개 질문</div>
+        </div>
+        <div class="category-card" onclick="startTheme('취미')">
+            <div class="category-icon">🎮</div>
+            <div class="category-name">광기의 덕질</div>
+            <div class="category-count">15개 질문</div>
+        </div>
+        <div class="category-card" onclick="startTheme('일상')">
+            <div class="category-icon">🚇</div>
+            <div class="category-name">아슬아슬 일상</div>
+            <div class="category-count">8개 질문</div>
+        </div>
+    </div>
+
+    <!-- 2. 카드 슬라이드 뷰 -->
+    <div id="slide-view">
+        <div class="challenge-container">
+            <button class="nav-btn btn-prev" onclick="changeCard(-1)">◀</button>
+            <div id="active-card" class="card"></div>
+            <button class="nav-btn btn-next" onclick="changeCard(1)">▶</button>
+        </div>
+    </div>
+</main>
+
+<div id="comment-sheet" class="bottom-sheet">
+    <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+        <h3 style="font-weight: 900;">실시간 반응 💬</h3>
+        <button onclick="toggleSheet(false)" style="border: none; background: #eee; padding: 5px 12px; border-radius: 10px; font-weight: 700;">닫기</button>
+    </div>
+    <div id="comment-list" style="flex: 1; overflow-y: auto;"></div>
+</div>
+
+<script>
+    const allData = {
+        "연애": [
+            { q: "첫 데이트 식당에서 최애 캐릭터 인형 식탁에 올려두고 '3명이서' 식사하기 가능?", yes: 8, no: 92, comments: [{u:"연애고수", t:"이건 이별 사유임ㅋㅋ", l:42, d:2}, {u:"순애보", t:"인형이 예의가 있네", l:5, d:38}] },
+            { q: "애인이 '나야, 캐릭터야?'라고 물었을 때 3초 이상 고민하기 가능?", yes: 15, no: 85, comments: [{u:"솔직남", t:"3초면 빨리 대답한 거 아님?", l:12, d:5}] },
+            { q: "커플링 대신 캐릭터 각인이 들어간 굿즈 반지 맞춰서 끼고 다니기 가능?", yes: 12, no: 88, comments: [{u:"디자인전공", t:"요즘 굿즈는 예쁘게 나와서 가능!", l:8, d:12}] },
+            { q: "애인과의 카톡 대화 중 무의식적으로 애니 명대사 섞어 쓰기 가능?", yes: 45, no: 55, comments: [{u:"오타쿠", t:"'다이죠부' 정도는 일상 아님?", l:33, d:4}] }
+        ],
+        "사회": [
+            { q: "회사 면접에서 특기가 '애니 감상'이며 작품 철학을 5분간 설파하기 가능?", yes: 5, no: 95, comments: [{u:"취준생", t:"합격하면 전설이다", l:150, d:1}, {u:"인사팀장", t:"흥미로워서 뽑을지도?", l:20, d:45}] },
+            { q: "상사한테 업무 지시 받고 무의식중에 '라져!(Roger!)'라고 외치며 경례하기 가능?", yes: 12, no: 88, comments: [{u:"군필오타쿠", t:"몸이 먼저 반응함", l:67, d:2}] },
+            { q: "사내 메신저 프로필을 '흑화 진행 중... 건드리지 마셈'으로 설정하기 가능?", yes: 3, no: 97, comments: [{u:"부장님", t:"김대리, 오늘 면담 좀 하지", l:230, d:0}] },
+            { q: "거래처 미팅 중 실수로 캐릭터가 그려진 폰 케이스 정면으로 보여주기 가능?", yes: 30, no: 70, comments: [{u:"영업맨", t:"오히려 친근감 어필 가능", l:12, d:8}] }
+        ],
+        "취미": [
+            { q: "월급날 생활비 빼고 전부 굿즈 랜덤깡에 올인해서 한 달간 삼각김밥만 먹기 가능?", yes: 52, no: 48, comments: [{u:"가챠중독", t:"굿즈는 영원하지만 배고픔은 순간이다", l:99, d:3}] },
+            { q: "캐릭터 생일파티를 위해 카페 대관해서 혼자 케이크 불고 축하 노래 부르기 가능?", yes: 25, no: 75, comments: [{u:"순애보", t:"이게 진짜 사랑이지", l:45, d:12}] },
+            { q: "굿즈 보존용, 감상용, 포교용으로 똑같은 피규어 3개씩 사기 가능?", yes: 60, no: 40, comments: [{u:"수집가", t:"이건 국룰(기본) 아님?", l:120, d:5}] },
+            { q: "방 전체를 캐릭터 굿즈로 도배하고 부모님 초대해서 구경시켜드리기 가능?", yes: 10, no: 90, comments: [{u:"불효자", t:"등짝 스매싱 예약", l:88, d:2}] }
+        ],
+        "일상": [
+            { q: "비 오는 날 캐릭터 대왕 얼굴이 그려진 장우산 쓰고 명동 한복판 가기 가능?", yes: 8, no: 92, comments: [{u:"당당맨", t:"비만 안 맞으면 장땡", l:15, d:40}] },
+            { q: "카페에서 공부할 때 캐릭터 스티커가 50개 붙은 노트북 당당하게 펴기 가능?", yes: 65, no: 35, comments: [{u:"카공족", t:"스티커는 나만의 개성임", l:54, d:12}] },
+            { q: "헬스장에서 운동할 때 이어폰 없이 애니 주제가 틀어놓고 스쿼트 하기 가능?", yes: 2, no: 98, comments: [{u:"근성가이", t:"주제가 들으면 힘이 솟음", l:30, d:80}] },
+            { q: "편의점에서 줄 서 있는데 뒤에 사람 다 들리게 '니코니코니' 흥얼거리기 가능?", yes: 1, no: 99, comments: [{u:"지나가던사람", t:"신고해도 무죄", l:500, d:5}] }
+        ]
+    };
+
+    let currentTheme = "";
+    let currentIndex = 0;
+    let voted = {};
+
+    function startTheme(theme) {
+        currentTheme = theme;
+        currentIndex = 0;
+        document.getElementById('category-view').style.display = 'none';
+        document.getElementById('slide-view').style.display = 'flex';
+        document.getElementById('back-home').style.display = 'block';
+        renderCard();
+    }
+
+    function goHome() {
+        document.getElementById('category-view').style.display = 'grid';
+        document.getElementById('slide-view').style.display = 'none';
+        document.getElementById('back-home').style.display = 'none';
+    }
+
+    function renderCard() {
+        const item = allData[currentTheme][currentIndex];
+        const card = document.getElementById('active-card');
+        const voteKey = `${currentTheme}-${currentIndex}`;
+        
+        card.innerHTML = `
+            <div style="font-size: 13px; font-weight: 800; color: var(--main-pink);">[ ${currentTheme} 챌린지 ]</div>
+            <div class="question-text">${item.q}</div>
+            <div id="vote-area">
+                ${voted[voteKey] ? `
+                    <div class="result-gauge" style="display: flex;">
+                        <div class="gauge-part g-yes" style="width: ${item.yes}%">가능 ${item.yes}%</div>
+                        <div class="gauge-part g-no" style="width: ${item.no}%">불가 ${item.no}%</div>
+                    </div>
+                ` : `
+                    <button class="vote-btn btn-yes" onclick="doVote('yes')">가능!</button>
+                    <button class="vote-btn btn-no" onclick="doVote('no')">불가능</button>
+                `}
+            </div>
+            <button onclick="toggleSheet(true)" style="background: none; border: none; color: #999; font-weight: 700; font-size: 14px; margin-top: auto; cursor: pointer;">
+                💬 실시간 반응 보기 (${item.comments.length})
+            </button>
+        `;
+    }
+
+    function changeCard(dir) {
+        const list = allData[currentTheme];
+        currentIndex = (currentIndex + dir + list.length) % list.length;
+        renderCard();
+    }
+
+    function doVote(type) {
+        voted[`${currentTheme}-${currentIndex}`] = true;
+        renderCard();
+    }
+
+    function toggleSheet(open) {
+        const sheet = document.getElementById('comment-sheet');
+        if (open) {
+            const comments = allData[currentTheme][currentIndex].comments;
+            const list = document.getElementById('comment-list');
+            list.innerHTML = comments.length > 0 ? comments.map(c => `
+                <div class="comment-item">
+                    <span class="comment-user">@${c.u}</span>
+                    <span style="font-size: 14px;">${c.t}</span>
+                    <div class="comment-actions">
+                        <button class="action-btn">👍 ${c.l}</button>
+                        <button class="action-btn">👎 ${c.d}</button>
+                    </div>
+                </div>
+            `).join('') : '<div style="text-align: center; color: #ccc; margin-top: 50px;">첫 댓글을 남겨보세요!</div>';
+            sheet.classList.add('open');
+        } else {
+            sheet.classList.remove('open');
+        }
+    }
+</script>
+
+</body>
+</html>

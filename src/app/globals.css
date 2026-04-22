@@ -1,26 +1,213 @@
+@import url("https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Bungee&family=Bungee+Shade&family=Space+Mono:wght@400;700&display=swap");
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css");
 @import "tailwindcss";
 
+/* ============================================================================
+ * Neo-Brutalist Y2K Kawaii — 찐력 챌린지
+ * ========================================================================= */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* 전경/배경 */
+  --ink: #0a0a0a;
+  --paper: #fffcef;
+  --paper-tint: #fff4d6;
+
+  /* 핵심 액센트 */
+  --acid-pink: #ff2e93;
+  --acid-lime: #d4ff00;
+  --hot-cyan: #00f0ff;
+  --neon-purple: #7b2cff;
+  --danger: #ff0033;
+
+  /* yes/no */
+  --yes: #00c853;
+  --yes-ink: #003d19;
+  --no: #ff0033;
+  --no-ink: #4d0010;
+
+  /* 그림자: 브루탈리스트 하드 쉐도우 */
+  --shadow-hard: 6px 6px 0 0 var(--ink);
+  --shadow-hard-lg: 10px 10px 0 0 var(--ink);
+  --shadow-hard-sm: 4px 4px 0 0 var(--ink);
+
+  /* 폰트 */
+  --font-display: "Black Han Sans", "Pretendard Variable", system-ui;
+  --font-accent: "Bungee", "Pretendard Variable", system-ui;
+  --font-mono: "Space Mono", ui-monospace, monospace;
+  --font-body: "Pretendard Variable", "Pretendard", -apple-system, sans-serif;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-ink: var(--ink);
+  --color-paper: var(--paper);
+  --color-acid-pink: var(--acid-pink);
+  --color-acid-lime: var(--acid-lime);
+  --color-hot-cyan: var(--hot-cyan);
+  --color-neon-purple: var(--neon-purple);
+  --color-yes: var(--yes);
+  --color-no: var(--no);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
+  --font-accent: var(--font-accent);
+  --font-mono: var(--font-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  font-family: var(--font-body);
+  color: var(--ink);
+  background: var(--paper);
+  min-height: 100vh;
+}
+
+/* ============================================================================
+ * 배경: 노이즈 + 도트 그리드 + 격자 라인
+ * ========================================================================= */
+body {
+  background-color: var(--paper);
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(10, 10, 10, 0.08) 1px, transparent 0),
+    linear-gradient(180deg, var(--paper) 0%, var(--paper-tint) 100%);
+  background-size:
+    20px 20px,
+    100% 100%;
+  background-attachment: fixed;
+  position: relative;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  mix-blend-mode: multiply;
+}
+
+/* ============================================================================
+ * 유틸: 브루탈 카드, 스티커
+ * ========================================================================= */
+.brutal {
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  box-shadow: var(--shadow-hard);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.brutal-lg {
+  border: 4px solid var(--ink);
+  box-shadow: var(--shadow-hard-lg);
+}
+.brutal:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 8px 8px 0 0 var(--ink);
+}
+.brutal:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 0 var(--ink);
+}
+
+.sticker {
+  display: inline-block;
+  padding: 4px 10px;
+  border: 2px solid var(--ink);
+  font-family: var(--font-accent);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  box-shadow: 3px 3px 0 0 var(--ink);
+}
+
+.marquee-track {
+  display: flex;
+  gap: 2rem;
+  animation: marquee 22s linear infinite;
+  width: max-content;
+}
+
+/* ============================================================================
+ * 애니메이션
+ * ========================================================================= */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) rotate(-2deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(-2deg);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-2deg); }
+  25% { transform: rotate(1deg); }
+  50% { transform: rotate(-3deg); }
+  75% { transform: rotate(2deg); }
+}
+
+@keyframes bounce-in {
+  0% { transform: scale(0.3); opacity: 0; }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.08) rotate(-3deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+
+@keyframes glitch {
+  0%, 100% { transform: translate(0); }
+  20% { transform: translate(-2px, 1px); }
+  40% { transform: translate(2px, -1px); }
+  60% { transform: translate(-1px, -2px); }
+  80% { transform: translate(1px, 2px); }
+}
+
+.animate-slide-up { animation: slideUp 0.5s cubic-bezier(.2,1.3,.4,1); }
+.animate-bounce-in { animation: bounce-in 0.5s cubic-bezier(.2,1.5,.4,1); }
+.animate-wiggle { animation: wiggle 0.5s ease-in-out; }
+.animate-pop { animation: pop 0.4s cubic-bezier(.2,1.4,.4,1); }
+
+.hover-glitch:hover { animation: glitch 0.3s infinite; }
+
+/* 스태거용 delay */
+.stagger-1 { animation-delay: 60ms; animation-fill-mode: backwards; }
+.stagger-2 { animation-delay: 120ms; animation-fill-mode: backwards; }
+.stagger-3 { animation-delay: 180ms; animation-fill-mode: backwards; }
+.stagger-4 { animation-delay: 240ms; animation-fill-mode: backwards; }
+
+/* 스크롤바 */
+::-webkit-scrollbar { width: 12px; }
+::-webkit-scrollbar-track { background: var(--paper-tint); }
+::-webkit-scrollbar-thumb {
+  background: var(--ink);
+  border: 2px solid var(--paper);
+}
+
+/* 선택 */
+::selection {
+  background: var(--acid-pink);
+  color: var(--paper);
+}
+
+/* 포커스 링 통일 */
+*:focus-visible {
+  outline: 3px solid var(--acid-pink);
+  outline-offset: 3px;
 }

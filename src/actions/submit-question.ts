@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { ensureAnonSession } from "@/actions/auth";
+import { moderate } from "@/lib/moderation/badwords";
 
 const schema = z.object({
   categoryId: z.coerce.number().int().positive(),
@@ -45,6 +46,22 @@ export async function submitQuestion(
   if (!user) return { ok: false, error: "세션을 만들 수 없습니다" };
 
   const supabase = await createClient();
+
+  const check = moderate(parsed.data.content);
+  if (!check.ok) {
+    await supabase.from("moderation_blocks").insert({
+      user_id: user.id,
+      kind: "question",
+      content: parsed.data.content,
+      reason: check.reason,
+      matched: check.matched,
+    });
+    return {
+      ok: false,
+      error: `등록 차단: ${check.reason} 감지 — 표현을 다시 써주세요`,
+    };
+  }
+
   const { error } = await supabase.from("questions").insert({
     category_id: parsed.data.categoryId,
     content: parsed.data.content,

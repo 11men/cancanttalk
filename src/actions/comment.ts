@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { ensureAnonSession } from "@/actions/auth";
+import { moderate } from "@/lib/moderation/badwords";
 
 type Result = { ok: true } | { ok: false; error: string };
 
@@ -23,6 +24,22 @@ export async function createComment(
   if (!user) return { ok: false, error: "세션을 만들 수 없습니다" };
 
   const supabase = await createClient();
+
+  const check = moderate(parsed.data.content);
+  if (!check.ok) {
+    await supabase.from("moderation_blocks").insert({
+      user_id: user.id,
+      kind: "comment",
+      content: parsed.data.content,
+      reason: check.reason,
+      matched: check.matched,
+    });
+    return {
+      ok: false,
+      error: `전송 차단: ${check.reason} 감지 — 표현을 다시 써주세요`,
+    };
+  }
+
   const { error } = await supabase.from("comments").insert({
     question_id: parsed.data.questionId,
     user_id: user.id,
@@ -30,6 +47,36 @@ export async function createComment(
   });
 
   if (error) return { ok: false, error: error.message };
+  revalidatePath("/categories/[slug]", "page");
+  return { ok: true };
+}
+
+export async function toggleBestComment(commentId: string): Promise<Result> {
+  const user = await ensureAnonSession();
+  if (!user) return { ok: false, error: "세션을 만들 수 없습니다" };
+
+  const supabase = await createClient();
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("is_admin")
+    .eq("id", user.id)
+    .maybeSingle();
+  if (!profile?.is_admin) return { ok: false, error: "권한이 없습니다" };
+
+  const { data: comment } = await supabase
+    .from("comments")
+    .select("is_best, question_id")
+    .eq("id", commentId)
+    .maybeSingle();
+  if (!comment) return { ok: false, error: "댓글을 찾을 수 없습니다" };
+
+  const { error } = await supabase
+    .from("comments")
+    .update({ is_best: !comment.is_best })
+    .eq("id", commentId);
+  if (error) return { ok: false, error: error.message };
+
   revalidatePath("/categories/[slug]", "page");
   return { ok: true };
 }

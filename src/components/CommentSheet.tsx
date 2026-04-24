@@ -2,17 +2,26 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { createComment, reactToComment } from "@/actions/comment";
+import {
+  createComment,
+  reactToComment,
+  toggleBestComment,
+} from "@/actions/comment";
+import { moderateForUser } from "@/lib/moderation/badwords";
 
 type CommentRow = {
   id: string;
   content: string;
   like_count: number;
   dislike_count: number;
+  is_best: boolean;
   created_at: string;
   user_id: string;
   profiles: { nickname: string | null } | null;
 };
+
+const COMMENT_SELECT =
+  "id, content, like_count, dislike_count, is_best, created_at, user_id, profiles(nickname)";
 
 type Props = {
   questionId: string;
@@ -29,6 +38,7 @@ export default function CommentSheet({
   const [input, setInput] = useState("");
   const [isPending, startTransition] = useTransition();
   const [loading, setLoading] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -36,15 +46,27 @@ export default function CommentSheet({
     setLoading(true);
 
     (async () => {
-      const { data } = await supabase
-        .from("comments")
-        .select(
-          "id, content, like_count, dislike_count, created_at, user_id, profiles(nickname)",
-        )
-        .eq("question_id", questionId)
-        .order("created_at", { ascending: false })
-        .limit(50);
+      const [{ data }, { data: sessionData }] = await Promise.all([
+        supabase
+          .from("comments")
+          .select(COMMENT_SELECT)
+          .eq("question_id", questionId)
+          .order("is_best", { ascending: false })
+          .order("created_at", { ascending: false })
+          .limit(50),
+        supabase.auth.getUser(),
+      ]);
       setComments((data as CommentRow[] | null) ?? []);
+
+      const uid = sessionData?.user?.id;
+      if (uid) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("is_admin")
+          .eq("id", uid)
+          .maybeSingle();
+        setIsAdmin(!!profile?.is_admin);
+      }
       setLoading(false);
     })();
 
@@ -61,9 +83,7 @@ export default function CommentSheet({
         async (payload) => {
           const { data } = await supabase
             .from("comments")
-            .select(
-              "id, content, like_count, dislike_count, created_at, user_id, profiles(nickname)",
-            )
+            .select(COMMENT_SELECT)
             .eq("id", payload.new.id)
             .maybeSingle();
           if (data) setComments((prev) => [data as CommentRow, ...prev]);
@@ -79,10 +99,35 @@ export default function CommentSheet({
   function handleSubmit() {
     if (!input.trim()) return;
     const content = input.trim();
+
+    const clientCheck = moderateForUser(content);
+    if (!clientCheck.allowed) {
+      alert(clientCheck.message);
+      return;
+    }
+
     setInput("");
     startTransition(async () => {
       const res = await createComment(questionId, content);
       if (!res.ok) alert(res.error);
+    });
+  }
+
+  function handleToggleBest(commentId: string) {
+    startTransition(async () => {
+      const res = await toggleBestComment(commentId);
+      if (!res.ok) {
+        alert(res.error);
+        return;
+      }
+      setComments((prev) =>
+        prev
+          .map((c) => (c.id === commentId ? { ...c, is_best: !c.is_best } : c))
+          .sort((a, b) => {
+            if (a.is_best !== b.is_best) return a.is_best ? -1 : 1;
+            return b.created_at.localeCompare(a.created_at);
+          }),
+      );
     });
   }
 
@@ -162,12 +207,19 @@ export default function CommentSheet({
               {comments.map((c) => (
                 <li
                   key={c.id}
-                  className="brutal bg-(--paper-tint) p-4 animate-slide-up"
+                  className={`brutal p-4 animate-slide-up ${c.is_best ? "bg-(--acid-lime)" : "bg-(--paper-tint)"}`}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <span className="sticker bg-(--acid-lime) text-[10px]">
-                      @{c.profiles?.nickname ?? "익명"}
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      {c.is_best && (
+                        <span className="sticker bg-(--ink) text-(--acid-lime) text-[10px]">
+                          👑 BEST
+                        </span>
+                      )}
+                      <span className="sticker bg-(--acid-lime) text-[10px]">
+                        @{c.profiles?.nickname ?? "익명"}
+                      </span>
+                    </div>
                     <span className="font-mono text-[9px] text-(--ink)/50">
                       {new Date(c.created_at).toLocaleString("ko", {
                         month: "numeric",
@@ -180,7 +232,7 @@ export default function CommentSheet({
                   <p className="text-sm font-medium leading-relaxed my-2">
                     {c.content}
                   </p>
-                  <div className="flex gap-2 mt-2">
+                  <div className="flex gap-2 mt-2 flex-wrap">
                     <button
                       type="button"
                       onClick={() => handleReact(c.id, "like")}
@@ -197,6 +249,16 @@ export default function CommentSheet({
                     >
                       👎 {c.dislike_count}
                     </button>
+                    {isAdmin && (
+                      <button
+                        type="button"
+                        onClick={() => handleToggleBest(c.id)}
+                        disabled={isPending}
+                        className="brutal ml-auto bg-(--ink) text-(--acid-lime) px-3 py-1 text-[10px] font-(family-name:--font-accent) tracking-wider"
+                      >
+                        {c.is_best ? "UNSET BEST" : "★ SET BEST"}
+                      </button>
+                    )}
                   </div>
                 </li>
               ))}

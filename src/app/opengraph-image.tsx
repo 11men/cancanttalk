@@ -50,28 +50,28 @@ export default async function Image() {
             alignItems: "center",
           }}
         >
-          <div>
-            이게{" "}
+          <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+            <span>이게</span>
             <span
               style={{
                 background: "#ff2e93",
                 color: "#fffcef",
                 padding: "0 16px",
                 transform: "rotate(-2deg)",
-                display: "inline-block",
+                display: "flex",
               }}
             >
               가능?
             </span>
           </div>
-          <div style={{ marginTop: 8 }}>
+          <div style={{ marginTop: 8, display: "flex" }}>
             <span
               style={{
                 background: "#0a0a0a",
                 color: "#d4ff00",
                 padding: "0 16px",
                 transform: "rotate(1deg)",
-                display: "inline-block",
+                display: "flex",
               }}
             >
               불가능?
@@ -86,7 +86,7 @@ export default async function Image() {
             fontFamily: "monospace",
           }}
         >
-          1020 찐찐찐 도파민 ✦ 실시간 투표장
+          1020 찐찐찐 도파민 · 실시간 투표장
         </div>
       </div>
     ),

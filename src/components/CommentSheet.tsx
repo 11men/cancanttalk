@@ -112,25 +112,26 @@ export default function CommentSheet({
       {/* backdrop */}
       <div
         onClick={onClose}
-        className={`fixed inset-0 bg-[var(--ink)]/40 z-[90] transition-opacity ${
+        className={`fixed inset-0 bg-(--ink)/40 z-[90] transition-opacity ${
           open ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         aria-hidden
       />
 
       <div
-        className={`fixed left-1/2 -translate-x-1/2 w-full max-w-[480px] h-[88%] bg-[var(--paper)] z-[100] border-t-[4px] border-x-[3px] border-[var(--ink)] transition-[bottom] duration-300 ease-[cubic-bezier(.2,1.3,.4,1)] flex flex-col shadow-[0_-12px_0_0_var(--ink)] ${
+        className={`fixed left-1/2 -translate-x-1/2 w-full max-w-[480px] h-[88%] bg-(--paper) z-[100] border-t-[4px] border-x-[3px] border-(--ink) transition-[bottom] duration-300 ease-[cubic-bezier(.2,1.3,.4,1)] flex flex-col ${
           open ? "bottom-0" : "-bottom-full"
         }`}
+        style={{ boxShadow: "0 -12px 0 0 var(--ink)" }}
       >
         {/* handle */}
-        <div className="flex justify-center py-2 border-b-2 border-[var(--ink)] bg-[var(--acid-pink)]">
-          <span className="w-14 h-1.5 bg-[var(--paper)] rounded-full" />
+        <div className="flex justify-center py-2 border-b-2 border-(--ink) bg-(--acid-pink)">
+          <span className="w-14 h-1.5 bg-(--paper) rounded-full" />
         </div>
 
-        <div className="px-5 py-4 border-b-2 border-[var(--ink)] flex justify-between items-center bg-[var(--acid-pink)] text-[var(--paper)]">
+        <div className="px-5 py-4 border-b-2 border-(--ink) flex justify-between items-center bg-(--acid-pink) text-(--paper)">
           <h3
-            className="font-[family-name:var(--font-display)] text-[22px] tracking-tight"
+            className="font-(family-name:--font-display) text-[22px] tracking-tight"
             style={{ WebkitTextStroke: "0.3px var(--paper)" }}
           >
             실시간 반응 💬
@@ -138,7 +139,7 @@ export default function CommentSheet({
           <button
             type="button"
             onClick={onClose}
-            className="sticker bg-[var(--paper)] text-[var(--ink)]"
+            className="sticker bg-(--paper) text-(--ink)"
           >
             ✕ CLOSE
           </button>
@@ -146,14 +147,14 @@ export default function CommentSheet({
 
         <div className="flex-1 overflow-y-auto px-5 py-4">
           {loading ? (
-            <div className="text-center font-mono text-sm text-[var(--ink)]/60 mt-16 animate-pulse">
+            <div className="text-center font-mono text-sm text-(--ink)/60 mt-16 animate-pulse">
               LOADING...
             </div>
           ) : comments.length === 0 ? (
             <div className="text-center mt-16">
               <div className="text-5xl mb-2 animate-wiggle">💭</div>
               <p
-                className="font-[family-name:var(--font-display)] text-[18px]"
+                className="font-(family-name:--font-display) text-[18px]"
                 style={{ WebkitTextStroke: "0.2px var(--ink)" }}
               >
                 첫 반응의 주인공?
@@ -164,13 +165,13 @@ export default function CommentSheet({
               {comments.map((c) => (
                 <li
                   key={c.id}
-                  className="brutal bg-[var(--paper-tint)] p-4 animate-slide-up"
+                  className="brutal bg-(--paper-tint) p-4 animate-slide-up"
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <span className="sticker bg-[var(--acid-lime)] text-[10px]">
+                    <span className="sticker bg-(--acid-lime) text-[10px]">
                       @{c.profiles?.nickname ?? "익명"}
                     </span>
-                    <span className="font-mono text-[9px] text-[var(--ink)]/50">
+                    <span className="font-mono text-[9px] text-(--ink)/50">
                       {new Date(c.created_at).toLocaleString("ko", {
                         month: "numeric",
                         day: "numeric",
@@ -187,7 +188,7 @@ export default function CommentSheet({
                       type="button"
                       onClick={() => handleReact(c.id, "like")}
                       disabled={isPending}
-                      className="brutal bg-[var(--paper)] px-3 py-1 text-xs font-bold hover:bg-[var(--acid-lime)]"
+                      className="brutal bg-(--paper) px-3 py-1 text-xs font-bold hover:bg-(--acid-lime)"
                     >
                       👍 {c.like_count}
                     </button>
@@ -195,7 +196,7 @@ export default function CommentSheet({
                       type="button"
                       onClick={() => handleReact(c.id, "dislike")}
                       disabled={isPending}
-                      className="brutal bg-[var(--paper)] px-3 py-1 text-xs font-bold hover:bg-[var(--acid-pink)] hover:text-[var(--paper)]"
+                      className="brutal bg-(--paper) px-3 py-1 text-xs font-bold hover:bg-(--acid-pink) hover:text-(--paper)"
                     >
                       👎 {c.dislike_count}
                     </button>
@@ -207,7 +208,7 @@ export default function CommentSheet({
         </div>
 
         {isAuthed ? (
-          <div className="p-4 border-t-[3px] border-[var(--ink)] bg-[var(--paper-tint)]">
+          <div className="p-4 border-t-[3px] border-(--ink) bg-(--paper-tint)">
             <div className="flex gap-2">
               <input
                 value={input}
@@ -215,21 +216,21 @@ export default function CommentSheet({
                 onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
                 placeholder="찐 반응 남기기..."
                 maxLength={500}
-                className="brutal flex-1 bg-[var(--paper)] px-4 py-3 text-sm outline-none"
+                className="brutal flex-1 bg-(--paper) px-4 py-3 text-sm outline-none"
               />
               <button
                 type="button"
                 onClick={handleSubmit}
                 disabled={isPending || !input.trim()}
-                className="brutal bg-[var(--ink)] text-[var(--paper)] px-5 py-3 font-[family-name:var(--font-accent)] text-xs tracking-wider disabled:opacity-50"
+                className="brutal bg-(--ink) text-(--paper) px-5 py-3 font-(family-name:--font-accent) text-xs tracking-wider disabled:opacity-50"
               >
                 POST
               </button>
             </div>
           </div>
         ) : (
-          <div className="p-4 border-t-[3px] border-[var(--ink)] bg-[var(--paper-tint)] text-center">
-            <p className="text-xs font-mono text-[var(--ink)]/70">
+          <div className="p-4 border-t-[3px] border-(--ink) bg-(--paper-tint) text-center">
+            <p className="text-xs font-mono text-(--ink)/70">
               LOGIN TO REACT
             </p>
           </div>

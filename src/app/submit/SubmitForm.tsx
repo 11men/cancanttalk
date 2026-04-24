@@ -18,15 +18,15 @@ export default function SubmitForm({ categories }: Props) {
   );
 
   return (
-    <form action={formAction} className="brutal brutal-lg bg-[var(--paper)] p-5 space-y-5">
+    <form action={formAction} className="brutal brutal-lg bg-(--paper) p-5 space-y-5">
       <label className="block">
-        <span className="sticker bg-[var(--acid-lime)] mb-2 inline-block">
+        <span className="sticker bg-(--acid-lime) mb-2 inline-block">
           01 / CATEGORY
         </span>
         <select
           name="categoryId"
           required
-          className="brutal w-full bg-[var(--paper)] px-4 py-3 font-[family-name:var(--font-display)] text-[18px] outline-none"
+          className="brutal w-full bg-(--paper) px-4 py-3 font-(family-name:--font-display) text-[18px] outline-none"
           defaultValue={categories[0]?.id}
         >
           {categories.map((c) => (
@@ -36,14 +36,14 @@ export default function SubmitForm({ categories }: Props) {
           ))}
         </select>
         {state.fieldErrors?.categoryId && (
-          <p className="text-xs font-mono text-[var(--no)] mt-1">
+          <p className="text-xs font-mono text-(--no) mt-1">
             ! {state.fieldErrors.categoryId}
           </p>
         )}
       </label>
 
       <label className="block">
-        <span className="sticker bg-[var(--hot-cyan)] mb-2 inline-block">
+        <span className="sticker bg-(--hot-cyan) mb-2 inline-block">
           02 / QUESTION
         </span>
         <textarea
@@ -53,20 +53,20 @@ export default function SubmitForm({ categories }: Props) {
           maxLength={300}
           rows={5}
           placeholder="예) 지하철에서 최애 주제가 크게 틀고 리듬타기 가능?"
-          className="brutal w-full bg-[var(--paper)] px-4 py-3 text-sm resize-none outline-none font-medium leading-relaxed"
+          className="brutal w-full bg-(--paper) px-4 py-3 text-sm resize-none outline-none font-medium leading-relaxed"
         />
-        <p className="text-[10px] font-mono text-[var(--ink)]/60 mt-1.5">
+        <p className="text-[10px] font-mono text-(--ink)/60 mt-1.5">
           ★ 질문은 &quot;~ 가능?&quot; 으로 끝내야 함 (국룰)
         </p>
         {state.fieldErrors?.content && (
-          <p className="text-xs font-mono text-[var(--no)] mt-1">
+          <p className="text-xs font-mono text-(--no) mt-1">
             ! {state.fieldErrors.content}
           </p>
         )}
       </label>
 
       <label className="block">
-        <span className="sticker bg-[var(--acid-pink)] text-[var(--paper)] mb-2 inline-block">
+        <span className="sticker bg-(--acid-pink) text-(--paper) mb-2 inline-block">
           03 / SPICE LEVEL
         </span>
         <input
@@ -75,15 +75,15 @@ export default function SubmitForm({ categories }: Props) {
           min={1}
           max={5}
           defaultValue={3}
-          className="brutal w-full bg-[var(--paper)] px-4 py-3 font-[family-name:var(--font-display)] text-[18px] outline-none"
+          className="brutal w-full bg-(--paper) px-4 py-3 font-(family-name:--font-display) text-[18px] outline-none"
         />
-        <p className="text-[10px] font-mono text-[var(--ink)]/60 mt-1.5">
+        <p className="text-[10px] font-mono text-(--ink)/60 mt-1.5">
           1 순한맛 · 5 심연
         </p>
       </label>
 
       {state.error && !state.fieldErrors && (
-        <div className="brutal bg-[var(--no)] text-[var(--paper)] p-3 font-mono text-xs">
+        <div className="brutal bg-(--no) text-(--paper) p-3 font-mono text-xs">
           ! {state.error}
         </div>
       )}
@@ -91,7 +91,7 @@ export default function SubmitForm({ categories }: Props) {
       <button
         type="submit"
         disabled={isPending}
-        className="brutal brutal-lg w-full py-5 bg-[var(--ink)] text-[var(--paper)] font-[family-name:var(--font-display)] text-[22px] tracking-tight hover-glitch disabled:opacity-50"
+        className="brutal brutal-lg w-full py-5 bg-(--ink) text-(--paper) font-(family-name:--font-display) text-[22px] tracking-tight hover-glitch disabled:opacity-50"
       >
         {isPending ? "전송 중..." : "제보 발사 →"}
       </button>

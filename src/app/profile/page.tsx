@@ -47,8 +47,8 @@ export default async function ProfilePage() {
   return (
     <section className="flex-1 px-5 py-6 space-y-4">
       {/* 페르소나 카드 */}
-      <div className="brutal brutal-lg bg-[var(--acid-pink)] text-[var(--paper)] p-7 text-center relative">
-        <span className="sticker absolute -top-4 left-4 bg-[var(--acid-lime)] text-[var(--ink)] -rotate-3">
+      <div className="brutal brutal-lg bg-(--acid-pink) text-(--paper) p-7 text-center relative">
+        <span className="sticker absolute -top-4 left-4 bg-(--acid-lime) text-(--ink) -rotate-3">
           PERSONA
         </span>
         <div className="text-7xl mb-3 animate-bounce-in">
@@ -58,7 +58,7 @@ export default async function ProfilePage() {
           @{profile?.nickname ?? "user"}
         </div>
         <h2
-          className="font-[family-name:var(--font-display)] text-[30px] leading-[1] tracking-tight mt-1"
+          className="font-(family-name:--font-display) text-[30px] leading-[1] tracking-tight mt-1"
           style={{ WebkitTextStroke: "0.4px var(--paper)" }}
         >
           {persona?.title ?? "아직 타이틀 없음"}
@@ -69,15 +69,15 @@ export default async function ProfilePage() {
       </div>
 
       {/* 카테고리별 성향 */}
-      <div className="brutal bg-[var(--paper)] p-5">
+      <div className="brutal bg-(--paper) p-5">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="font-[family-name:var(--font-display)] text-[18px]">
+          <h3 className="font-(family-name:--font-display) text-[18px]">
             카테고리 성향
           </h3>
-          <span className="sticker bg-[var(--hot-cyan)]">STATS</span>
+          <span className="sticker bg-(--hot-cyan)">STATS</span>
         </div>
         {stats.length === 0 ? (
-          <p className="font-mono text-xs text-[var(--ink)]/60 py-4 text-center">
+          <p className="font-mono text-xs text-(--ink)/60 py-4 text-center">
             NO VOTES YET
           </p>
         ) : (
@@ -92,9 +92,9 @@ export default async function ProfilePage() {
                       {s.yesCount}/{s.totalCount} · {pct}%
                     </span>
                   </div>
-                  <div className="h-3 border-2 border-[var(--ink)] bg-[var(--paper-tint)]">
+                  <div className="h-3 border-2 border-(--ink) bg-(--paper-tint)">
                     <div
-                      className="h-full bg-[var(--acid-pink)] transition-all"
+                      className="h-full bg-(--acid-pink) transition-all"
                       style={{ width: `${pct}%` }}
                     />
                   </div>
@@ -108,7 +108,7 @@ export default async function ProfilePage() {
       <form action={signOut}>
         <button
           type="submit"
-          className="brutal w-full py-3 bg-[var(--ink)] text-[var(--paper)] font-[family-name:var(--font-accent)] text-xs tracking-[0.2em]"
+          className="brutal w-full py-3 bg-(--ink) text-(--paper) font-(family-name:--font-accent) text-xs tracking-[0.2em]"
         >
           ✕ LOGOUT
         </button>

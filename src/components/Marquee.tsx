@@ -10,12 +10,12 @@ const ITEMS = [
 export default function Marquee() {
   const track = [...ITEMS, ...ITEMS, ...ITEMS];
   return (
-    <div className="bg-[var(--acid-pink)] border-b-[3px] border-[var(--ink)] overflow-hidden py-2 relative z-20">
+    <div className="bg-(--acid-pink) border-b-[3px] border-(--ink) overflow-hidden py-2 relative z-20">
       <div className="marquee-track">
         {track.map((t, i) => (
           <span
             key={i}
-            className="font-[family-name:var(--font-accent)] text-[13px] text-[var(--paper)] whitespace-nowrap"
+            className="font-(family-name:--font-accent) text-[13px] text-(--paper) whitespace-nowrap"
           >
             {t}
           </span>

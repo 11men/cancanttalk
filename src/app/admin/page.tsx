@@ -21,9 +21,9 @@ export default async function AdminPage() {
   if (!profile?.is_admin) {
     return (
       <section className="flex-1 flex items-center justify-center px-6">
-        <div className="brutal bg-[var(--no)] text-[var(--paper)] p-6 text-center">
+        <div className="brutal bg-(--no) text-(--paper) p-6 text-center">
           <div className="text-4xl mb-2">🚫</div>
-          <p className="font-[family-name:var(--font-display)] text-[20px]">
+          <p className="font-(family-name:--font-display) text-[20px]">
             ADMIN ONLY
           </p>
           <code className="font-mono text-[10px] opacity-80 block mt-2">
@@ -43,11 +43,11 @@ export default async function AdminPage() {
   return (
     <section className="flex-1 px-5 py-6">
       <div className="mb-5">
-        <p className="font-[family-name:var(--font-accent)] text-[11px] tracking-[0.2em] text-[var(--ink)]/70">
+        <p className="font-(family-name:--font-accent) text-[11px] tracking-[0.2em] text-(--ink)/70">
           MODERATION QUEUE
         </p>
         <h2
-          className="font-[family-name:var(--font-display)] text-[32px] leading-[0.95] tracking-tight mt-1"
+          className="font-(family-name:--font-display) text-[32px] leading-[0.95] tracking-tight mt-1"
           style={{ WebkitTextStroke: "0.4px var(--ink)" }}
         >
           검수 대기 질문

@@ -8,7 +8,7 @@ export default function BackButton() {
 
   if (pathname === "/") {
     return (
-      <span className="sticker bg-[var(--acid-lime)]" aria-hidden>
+      <span className="sticker bg-(--acid-lime)" aria-hidden>
         LIVE
       </span>
     );
@@ -18,7 +18,7 @@ export default function BackButton() {
     <button
       type="button"
       onClick={() => router.back()}
-      className="sticker bg-[var(--paper)] hover:bg-[var(--acid-pink)] hover:text-[var(--paper)] transition-colors"
+      className="sticker bg-(--paper) hover:bg-(--acid-pink) hover:text-(--paper) transition-colors"
     >
       ← BACK
     </button>

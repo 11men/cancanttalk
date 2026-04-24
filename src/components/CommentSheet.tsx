@@ -18,14 +18,12 @@ type Props = {
   questionId: string;
   open: boolean;
   onClose: () => void;
-  isAuthed: boolean;
 };
 
 export default function CommentSheet({
   questionId,
   open,
   onClose,
-  isAuthed,
 }: Props) {
   const [comments, setComments] = useState<CommentRow[]>([]);
   const [input, setInput] = useState("");
@@ -89,7 +87,6 @@ export default function CommentSheet({
   }
 
   function handleReact(commentId: string, kind: "like" | "dislike") {
-    if (!isAuthed) return alert("로그인이 필요합니다");
     startTransition(async () => {
       await reactToComment(commentId, kind);
       setComments((prev) =>
@@ -207,34 +204,26 @@ export default function CommentSheet({
           )}
         </div>
 
-        {isAuthed ? (
-          <div className="p-4 border-t-[3px] border-(--ink) bg-(--paper-tint)">
-            <div className="flex gap-2">
-              <input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-                placeholder="찐 반응 남기기..."
-                maxLength={500}
-                className="brutal flex-1 bg-(--paper) px-4 py-3 text-sm outline-none"
-              />
-              <button
-                type="button"
-                onClick={handleSubmit}
-                disabled={isPending || !input.trim()}
-                className="brutal bg-(--ink) text-(--paper) px-5 py-3 font-(family-name:--font-accent) text-xs tracking-wider disabled:opacity-50"
-              >
-                POST
-              </button>
-            </div>
+        <div className="p-4 border-t-[3px] border-(--ink) bg-(--paper-tint)">
+          <div className="flex gap-2">
+            <input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+              placeholder="찐 반응 남기기..."
+              maxLength={500}
+              className="brutal flex-1 bg-(--paper) px-4 py-3 text-sm outline-none"
+            />
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={isPending || !input.trim()}
+              className="brutal bg-(--ink) text-(--paper) px-5 py-3 font-(family-name:--font-accent) text-xs tracking-wider disabled:opacity-50"
+            >
+              POST
+            </button>
           </div>
-        ) : (
-          <div className="p-4 border-t-[3px] border-(--ink) bg-(--paper-tint) text-center">
-            <p className="text-xs font-mono text-(--ink)/70">
-              LOGIN TO REACT
-            </p>
-          </div>
-        )}
+        </div>
       </div>
     </>
   );

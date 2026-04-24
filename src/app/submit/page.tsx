@@ -1,15 +1,8 @@
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import SubmitForm from "./SubmitForm";
 
 export default async function SubmitPage() {
   const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/login?next=/submit");
 
   const { data: categories } = await supabase
     .from("categories")

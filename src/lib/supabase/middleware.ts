@@ -26,6 +26,16 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    // Auto-provision an anonymous session so vote/comment/submit flows work
+    // without any login UI. Requires Supabase Dashboard -> Authentication ->
+    // Providers -> Anonymous sign-ins to be enabled.
+    await supabase.auth.signInAnonymously();
+  }
+
   return response;
 }

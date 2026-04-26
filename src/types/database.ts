@@ -78,14 +78,16 @@ type CommentRow = {
   content: string;
   like_count: number;
   dislike_count: number;
+  is_best: boolean;
   created_at: string;
 };
 type CommentInsert = {
   question_id: string;
   user_id: string;
   content: string;
+  is_best?: boolean;
 };
-type CommentUpdate = Partial<CommentInsert>;
+type CommentUpdate = Partial<CommentInsert> & { is_best?: boolean };
 
 type CommentReactionRow = {
   comment_id: string;
@@ -99,6 +101,26 @@ type CommentReactionInsert = {
   reaction: ReactionKind;
 };
 type CommentReactionUpdate = Partial<CommentReactionInsert>;
+
+export type ModerationKind = "comment" | "question";
+
+type ModerationBlockRow = {
+  id: string;
+  user_id: string | null;
+  kind: ModerationKind;
+  content: string;
+  reason: string;
+  matched: string | null;
+  created_at: string;
+};
+type ModerationBlockInsert = {
+  user_id?: string | null;
+  kind: ModerationKind;
+  content: string;
+  reason: string;
+  matched?: string | null;
+};
+type ModerationBlockUpdate = Partial<ModerationBlockInsert>;
 
 export type Database = {
   public: {
@@ -137,6 +159,12 @@ export type Database = {
         Row: CommentReactionRow;
         Insert: CommentReactionInsert;
         Update: CommentReactionUpdate;
+        Relationships: [];
+      };
+      moderation_blocks: {
+        Row: ModerationBlockRow;
+        Insert: ModerationBlockInsert;
+        Update: ModerationBlockUpdate;
         Relationships: [];
       };
     };

@@ -64,7 +64,6 @@ export default async function CategoryPage({
     <ChallengeSlider
       category={{ name: category.name, emoji: category.emoji }}
       items={items}
-      isAuthed={!!user}
     />
   );
 }

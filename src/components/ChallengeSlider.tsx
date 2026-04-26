@@ -18,12 +18,11 @@ export type QuestionWithMeta = {
 type Props = {
   category: { name: string; emoji: string };
   items: QuestionWithMeta[];
-  isAuthed: boolean;
 };
 
 const DIFFICULTY_LABEL = ["", "순한맛", "미지근", "보통맛", "매운맛", "심연"];
 
-export default function ChallengeSlider({ category, items, isAuthed }: Props) {
+export default function ChallengeSlider({ category, items }: Props) {
   const router = useRouter();
   const [index, setIndex] = useState(0);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -56,10 +55,6 @@ export default function ChallengeSlider({ category, items, isAuthed }: Props) {
   }
 
   function handleVote(choice: boolean) {
-    if (!isAuthed) {
-      if (confirm("로그인 후 투표 가능. 로그인할래?")) router.push("/login");
-      return;
-    }
     setOptimistic((m) => ({ ...m, [current.id]: choice }));
     startTransition(async () => {
       const res = await castVote(current.id, choice);
@@ -199,7 +194,6 @@ export default function ChallengeSlider({ category, items, isAuthed }: Props) {
         questionId={current.id}
         open={sheetOpen}
         onClose={() => setSheetOpen(false)}
-        isAuthed={isAuthed}
       />
     </>
   );

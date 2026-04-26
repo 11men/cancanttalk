@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { ensureAnonSession } from "@/actions/auth";
 
 type Result = { ok: true } | { ok: false; error: string };
 
@@ -18,12 +19,10 @@ export async function createComment(
   const parsed = commentSchema.safeParse({ questionId, content });
   if (!parsed.success) return { ok: false, error: "입력이 올바르지 않습니다" };
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { ok: false, error: "로그인이 필요합니다" };
+  const user = await ensureAnonSession();
+  if (!user) return { ok: false, error: "세션을 만들 수 없습니다" };
 
+  const supabase = await createClient();
   const { error } = await supabase.from("comments").insert({
     question_id: parsed.data.questionId,
     user_id: user.id,
@@ -39,11 +38,10 @@ export async function reactToComment(
   commentId: string,
   reaction: "like" | "dislike",
 ): Promise<Result> {
+  const user = await ensureAnonSession();
+  if (!user) return { ok: false, error: "세션을 만들 수 없습니다" };
+
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { ok: false, error: "로그인이 필요합니다" };
 
   // 토글: 같은 반응이면 삭제, 다르면 upsert
   const { data: existing } = await supabase

@@ -1,17 +1,14 @@
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { derivePersona, type PersonaStat } from "@/lib/persona";
-import { signOut } from "@/actions/auth";
+import { ensureAnonSession, resetSession } from "@/actions/auth";
 
 export const dynamic = "force-dynamic";
 
 export default async function ProfilePage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await ensureAnonSession();
+  if (!user) throw new Error("anonymous session unavailable");
 
-  if (!user) redirect("/login?next=/profile");
+  const supabase = await createClient();
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -105,12 +102,12 @@ export default async function ProfilePage() {
         )}
       </div>
 
-      <form action={signOut}>
+      <form action={resetSession}>
         <button
           type="submit"
           className="brutal w-full py-3 bg-(--ink) text-(--paper) font-(family-name:--font-accent) text-xs tracking-[0.2em]"
         >
-          ✕ LOGOUT
+          ↻ 새 세션 시작
         </button>
       </form>
     </section>

@@ -1,28 +1,22 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 
-type Provider = "kakao" | "google";
-
-export async function signInWith(provider: Provider) {
+export async function ensureAnonSession() {
   const supabase = await createClient();
-  const h = await headers();
-  const origin = h.get("origin") ?? "http://localhost:3000";
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider,
-    options: {
-      redirectTo: `${origin}/auth/callback`,
-    },
-  });
+  if (user) return user;
 
-  if (error) throw new Error(error.message);
-  if (data.url) redirect(data.url);
+  const { data, error } = await supabase.auth.signInAnonymously();
+  if (error) throw new Error(`anonymous sign-in failed: ${error.message}`);
+  return data.user;
 }
 
-export async function signOut() {
+export async function resetSession() {
   const supabase = await createClient();
   await supabase.auth.signOut();
   redirect("/");

@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { ensureAnonSession } from "@/actions/auth";
 
 const schema = z.object({
   categoryId: z.coerce.number().int().positive(),
@@ -40,13 +41,10 @@ export async function submitQuestion(
     return { ok: false, error: "입력값을 확인해주세요", fieldErrors };
   }
 
+  const user = await ensureAnonSession();
+  if (!user) return { ok: false, error: "세션을 만들 수 없습니다" };
+
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) return { ok: false, error: "로그인이 필요합니다" };
-
   const { error } = await supabase.from("questions").insert({
     category_id: parsed.data.categoryId,
     content: parsed.data.content,

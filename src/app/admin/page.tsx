@@ -1,17 +1,14 @@
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { ensureAnonSession } from "@/actions/auth";
 import AdminList, { type PendingQuestion } from "./AdminList";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
+  const user = await ensureAnonSession();
+  if (!user) throw new Error("anonymous session unavailable");
+
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/login?next=/admin");
-
   const { data: profile } = await supabase
     .from("profiles")
     .select("is_admin")

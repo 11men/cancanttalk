@@ -42,6 +42,9 @@ HANDOFF.md
 # playwright mcp 임시 로그
 .playwright-mcp
 
+# claude code 로컬 상태
+.claude
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

@@ -8,6 +8,7 @@ export type PendingQuestion = {
   content: string;
   difficulty: number;
   created_at: string;
+  author_nickname: string | null;
   categories: { name: string; emoji: string } | null;
 };
 
@@ -35,18 +36,23 @@ export default function AdminList({ items }: { items: PendingQuestion[] }) {
     <ul className="space-y-3">
       {items.map((q) => (
         <li key={q.id} className="brutal bg-(--paper) p-4">
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
             <span className="sticker bg-(--hot-cyan)">
               {q.categories?.emoji} {q.categories?.name}
             </span>
-            <span className="font-mono text-[10px] text-(--ink)/60">
-              SPICE {q.difficulty}/5
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-[10px] text-(--ink)/70">
+                @{q.author_nickname ?? "익명"}
+              </span>
+              <span className="font-mono text-[10px] text-(--ink)/60">
+                SPICE {q.difficulty}/5
+              </span>
+            </div>
           </div>
           <p className="text-sm font-medium break-keep leading-relaxed mb-4">
             {q.content}
           </p>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
               disabled={isPending}

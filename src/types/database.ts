@@ -20,29 +20,12 @@ type CategoryInsert = {
 };
 type CategoryUpdate = Partial<CategoryInsert>;
 
-type ProfileRow = {
-  id: string;
-  nickname: string | null;
-  title: string | null;
-  badge_count: number;
-  is_admin: boolean;
-  created_at: string;
-  updated_at: string;
-};
-type ProfileInsert = {
-  id: string;
-  nickname?: string | null;
-  title?: string | null;
-  badge_count?: number;
-  is_admin?: boolean;
-};
-type ProfileUpdate = Partial<Omit<ProfileInsert, "id">>;
-
 type QuestionRow = {
   id: string;
   category_id: number;
   content: string;
-  author_id: string | null;
+  anon_id: string | null;
+  author_nickname: string | null;
   difficulty: number;
   status: QuestionStatus;
   vote_count: number;
@@ -52,20 +35,21 @@ type QuestionRow = {
 type QuestionInsert = {
   category_id: number;
   content: string;
-  author_id?: string | null;
+  anon_id?: string | null;
+  author_nickname?: string | null;
   difficulty?: number;
   status?: QuestionStatus;
 };
 type QuestionUpdate = Partial<QuestionInsert> & { status?: QuestionStatus };
 
 type VoteRow = {
-  user_id: string;
+  anon_id: string;
   question_id: string;
   choice: boolean;
   created_at: string;
 };
 type VoteInsert = {
-  user_id: string;
+  anon_id: string;
   question_id: string;
   choice: boolean;
 };
@@ -74,7 +58,9 @@ type VoteUpdate = Partial<VoteInsert>;
 type CommentRow = {
   id: string;
   question_id: string;
-  user_id: string;
+  parent_id: string | null;
+  anon_id: string;
+  nickname: string;
   content: string;
   like_count: number;
   dislike_count: number;
@@ -82,20 +68,22 @@ type CommentRow = {
 };
 type CommentInsert = {
   question_id: string;
-  user_id: string;
+  parent_id?: string | null;
+  anon_id: string;
+  nickname: string;
   content: string;
 };
 type CommentUpdate = Partial<CommentInsert>;
 
 type CommentReactionRow = {
   comment_id: string;
-  user_id: string;
+  anon_id: string;
   reaction: ReactionKind;
   created_at: string;
 };
 type CommentReactionInsert = {
   comment_id: string;
-  user_id: string;
+  anon_id: string;
   reaction: ReactionKind;
 };
 type CommentReactionUpdate = Partial<CommentReactionInsert>;
@@ -107,12 +95,6 @@ export type Database = {
         Row: CategoryRow;
         Insert: CategoryInsert;
         Update: CategoryUpdate;
-        Relationships: [];
-      };
-      profiles: {
-        Row: ProfileRow;
-        Insert: ProfileInsert;
-        Update: ProfileUpdate;
         Relationships: [];
       };
       questions: {
@@ -154,4 +136,3 @@ export type Category = CategoryRow;
 export type Question = QuestionRow;
 export type Vote = VoteRow;
 export type Comment = CommentRow;
-export type Profile = ProfileRow;

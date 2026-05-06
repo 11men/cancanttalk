@@ -5,6 +5,9 @@ import Marquee from "@/components/Marquee";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  ),
   title: "찐력 챌린지 ✦ 이게 가능?",
   description: "아슬아슬 킹받는 상황, 너는 가능? 불가능? 도파민 테스트 지금.",
 };
@@ -12,8 +15,6 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
 };
 
 export default function RootLayout({
@@ -23,10 +24,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className="h-full">
-      <body className="min-h-full flex flex-col relative">
+      <body className="min-h-full flex flex-col items-center relative">
         <Marquee />
         <Header />
-        <main className="flex-1 flex flex-col relative z-10 max-w-[480px] w-full mx-auto">
+        <main className="flex-1 flex flex-col items-center relative z-10 w-full">
           {children}
         </main>
         <Analytics />

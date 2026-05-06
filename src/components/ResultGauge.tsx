@@ -1,19 +1,36 @@
-type Props = { yesPct: number; noPct: number; myChoice: boolean | null };
+import { getResultHook, getCohortLine } from "@/lib/hook-copy";
 
-export default function ResultGauge({ yesPct, noPct, myChoice }: Props) {
+type Props = {
+  yesPct: number;
+  noPct: number;
+  myChoice: boolean | null;
+  totalCount?: number;
+};
+
+export default function ResultGauge({
+  yesPct,
+  noPct,
+  myChoice,
+  totalCount = 0,
+}: Props) {
+  const headline = getResultHook(yesPct, totalCount);
+  const cohort =
+    myChoice !== null && totalCount > 0
+      ? getCohortLine(myChoice, yesPct, totalCount)
+      : null;
+
   return (
     <div>
-      <div className="flex items-end justify-between mb-2">
-        <div className="font-(family-name:--font-accent) text-[11px] tracking-[0.2em] text-(--ink)/70">
+      <div className="mb-2.5">
+        <div className="font-(family-name:--font-accent) text-[11px] tracking-[0.2em] text-(--ink)/70 mb-1">
           VERDICT
         </div>
-        <div className="font-mono text-[10px] text-(--ink)/60">
-          {myChoice !== null && (
-            <>
-              YOU: <span className="font-bold">{myChoice ? "가능 ✓" : "불가능 ✓"}</span>
-            </>
-          )}
-        </div>
+        <p
+          className="font-(family-name:--font-display) text-[20px] sm:text-[22px] leading-tight tracking-tight text-(--ink)"
+          style={{ WebkitTextStroke: "0.3px var(--ink)" }}
+        >
+          {headline}
+        </p>
       </div>
       <div
         className="flex h-14 border-[3px] border-(--ink) overflow-hidden bg-(--paper)"
@@ -36,6 +53,19 @@ export default function ResultGauge({ yesPct, noPct, myChoice }: Props) {
         <span className="text-(--yes) font-bold">▲ 가능</span>
         <span className="text-(--no) font-bold">불가능 ▼</span>
       </div>
+      {cohort && (
+        <p className="mt-3 font-mono text-[11px] text-(--ink)/70">
+          {cohort}
+          {myChoice !== null && (
+            <span className="ml-2 text-(--ink)/50">
+              · 너:{" "}
+              <span className="font-bold text-(--ink)">
+                {myChoice ? "가능" : "불가능"}
+              </span>
+            </span>
+          )}
+        </p>
+      )}
     </div>
   );
 }

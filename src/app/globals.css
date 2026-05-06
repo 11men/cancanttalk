@@ -65,6 +65,7 @@ body {
   color: var(--ink);
   background: var(--paper);
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 /* ============================================================================
@@ -97,7 +98,6 @@ body::before {
  * 유틸: 브루탈 카드, 스티커
  * ========================================================================= */
 .brutal {
-  background: var(--paper);
   border: 3px solid var(--ink);
   box-shadow: var(--shadow-hard);
   transition: transform 120ms ease, box-shadow 120ms ease;

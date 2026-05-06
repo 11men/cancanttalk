@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { castVote } from "@/actions/vote";
 import CommentSheet from "./CommentSheet";
 import ResultGauge from "./ResultGauge";
+import { getCardTease } from "@/lib/hook-copy";
 
 export type QuestionWithMeta = {
   id: string;
@@ -18,17 +18,20 @@ export type QuestionWithMeta = {
 type Props = {
   category: { name: string; emoji: string };
   items: QuestionWithMeta[];
-  isAuthed: boolean;
+  initialNickname?: string;
 };
 
 const DIFFICULTY_LABEL = ["", "순한맛", "미지근", "보통맛", "매운맛", "심연"];
 
-export default function ChallengeSlider({ category, items, isAuthed }: Props) {
-  const router = useRouter();
+export default function ChallengeSlider({ category, items, initialNickname }: Props) {
   const [index, setIndex] = useState(0);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [optimistic, setOptimistic] = useState<Record<string, boolean>>({});
+  // 투표 후 카운트도 옵티미스틱하게 반영 (DB 트리거가 채워주지만 UI는 즉시)
+  const [voteBoost, setVoteBoost] = useState<
+    Record<string, { yes: number; total: number }>
+  >({});
 
   if (items.length === 0) {
     return (
@@ -45,10 +48,11 @@ export default function ChallengeSlider({ category, items, isAuthed }: Props) {
       : current.myChoice;
   const voted = myChoice !== null;
 
+  const boost = voteBoost[current.id];
+  const yesCount = current.yes_count + (boost?.yes ?? 0);
+  const totalCount = current.vote_count + (boost?.total ?? 0);
   const yesPct =
-    current.vote_count > 0
-      ? Math.round((current.yes_count / current.vote_count) * 100)
-      : 50;
+    totalCount > 0 ? Math.round((yesCount / totalCount) * 100) : 50;
   const noPct = 100 - yesPct;
 
   function change(dir: number) {
@@ -56,11 +60,14 @@ export default function ChallengeSlider({ category, items, isAuthed }: Props) {
   }
 
   function handleVote(choice: boolean) {
-    if (!isAuthed) {
-      if (confirm("로그인 후 투표 가능. 로그인할래?")) router.push("/login");
-      return;
-    }
     setOptimistic((m) => ({ ...m, [current.id]: choice }));
+    setVoteBoost((m) => ({
+      ...m,
+      [current.id]: {
+        yes: (m[current.id]?.yes ?? 0) + (choice ? 1 : 0),
+        total: (m[current.id]?.total ?? 0) + 1,
+      },
+    }));
     startTransition(async () => {
       const res = await castVote(current.id, choice);
       if (!res.ok) {
@@ -68,16 +75,18 @@ export default function ChallengeSlider({ category, items, isAuthed }: Props) {
           const { [current.id]: _omit, ...rest } = m;
           return rest;
         });
+        setVoteBoost((m) => {
+          const { [current.id]: _omit, ...rest } = m;
+          return rest;
+        });
         alert(res.error ?? "투표 실패");
-      } else {
-        router.refresh();
       }
     });
   }
 
   return (
     <>
-      <div className="flex-1 px-5 pt-5 pb-6 flex flex-col">
+      <div className="flex-1 w-full max-w-2xl mx-auto px-5 sm:px-6 pt-5 sm:pt-8 pb-6 flex flex-col">
         {/* 상단 카테고리 배지 + 페이징 */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
@@ -108,8 +117,10 @@ export default function ChallengeSlider({ category, items, isAuthed }: Props) {
         {/* 질문 카드 */}
         <div
           key={current.id}
-          className="brutal brutal-lg flex-1 bg-(--paper) p-6 flex flex-col relative overflow-hidden animate-slide-up"
+          className="brutal brutal-lg bg-(--paper) p-6 sm:p-8 flex flex-col relative overflow-hidden animate-slide-up"
           style={{ minHeight: 380 }}
+          role="article"
+          aria-label={`챌린지 ${index + 1}번`}
         >
           {/* 배경 데코 */}
           <div
@@ -125,10 +136,7 @@ export default function ChallengeSlider({ category, items, isAuthed }: Props) {
             <div className="font-(family-name:--font-accent) text-[11px] text-(--acid-pink) tracking-[0.2em] mb-4">
               CHALLENGE #{String(index + 1).padStart(3, "0")}
             </div>
-            <p
-              className="font-(family-name:--font-display) text-[26px] leading-[1.25] tracking-tight flex-1 break-keep"
-              style={{ WebkitTextStroke: "0.3px var(--ink)" }}
-            >
+            <p className="font-(family-name:--font-display) text-[26px] sm:text-[32px] leading-[1.25] tracking-tight flex-1 break-keep text-(--ink)">
               {current.content}
             </p>
           </div>
@@ -136,40 +144,61 @@ export default function ChallengeSlider({ category, items, isAuthed }: Props) {
           <div className="relative z-10 mt-6">
             {voted ? (
               <div className="animate-bounce-in">
-                <ResultGauge yesPct={yesPct} noPct={noPct} myChoice={myChoice} />
-                <button
-                  type="button"
-                  onClick={() => setSheetOpen(true)}
-                  className="brutal w-full mt-3 py-3 bg-(--ink) text-(--paper) font-(family-name:--font-accent) text-[13px] tracking-wider"
-                >
-                  💬 실시간 반응 보기 →
-                </button>
+                <ResultGauge
+                  yesPct={yesPct}
+                  noPct={noPct}
+                  myChoice={myChoice}
+                  totalCount={totalCount}
+                />
+                <div className="grid grid-cols-2 gap-3 mt-4">
+                  <button
+                    type="button"
+                    onClick={() => change(1)}
+                    className="brutal py-3.5 bg-(--acid-lime) text-(--ink) font-(family-name:--font-accent) text-[13px] tracking-wider"
+                  >
+                    다음꺼 더 미친 거 →
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSheetOpen(true)}
+                    className="brutal py-3.5 bg-(--ink) text-(--paper) font-(family-name:--font-accent) text-[13px] tracking-wider"
+                  >
+                    💬 댓글 보러 ↓
+                  </button>
+                </div>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  disabled={isPending}
-                  onClick={() => handleVote(true)}
-                  className="brutal py-5 bg-(--yes) text-(--paper) font-(family-name:--font-display) text-[22px] tracking-tight hover:-translate-y-1 hover:translate-x-[-2px] disabled:opacity-50"
-                >
-                  가능!
-                  <div className="text-[10px] font-mono font-bold opacity-80 mt-0.5">
-                    YES / 찐력 인증
-                  </div>
-                </button>
-                <button
-                  type="button"
-                  disabled={isPending}
-                  onClick={() => handleVote(false)}
-                  className="brutal py-5 bg-(--no) text-(--paper) font-(family-name:--font-display) text-[22px] tracking-tight hover:-translate-y-1 hover:translate-x-[2px] disabled:opacity-50"
-                >
-                  불가능
-                  <div className="text-[10px] font-mono font-bold opacity-80 mt-0.5">
-                    NO / 인간은 이성적
-                  </div>
-                </button>
-              </div>
+              <>
+                <p className="font-mono text-[11px] text-(--ink)/70 mb-2.5 text-center">
+                  ↳ {getCardTease(totalCount, yesCount)}
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    disabled={isPending}
+                    onClick={() => handleVote(true)}
+                    className="brutal py-5 bg-(--yes) text-(--paper) font-(family-name:--font-display) text-[22px] tracking-tight hover:-translate-y-1 hover:translate-x-[-2px] disabled:opacity-50 min-h-[64px]"
+                    aria-label="가능 투표"
+                  >
+                    가능!
+                    <div className="text-[10px] font-mono font-bold opacity-80 mt-0.5">
+                      ㅇㅇ 가능각
+                    </div>
+                  </button>
+                  <button
+                    type="button"
+                    disabled={isPending}
+                    onClick={() => handleVote(false)}
+                    className="brutal py-5 bg-(--no) text-(--paper) font-(family-name:--font-display) text-[22px] tracking-tight hover:-translate-y-1 hover:translate-x-[2px] disabled:opacity-50 min-h-[64px]"
+                    aria-label="불가능 투표"
+                  >
+                    불가능
+                    <div className="text-[10px] font-mono font-bold opacity-80 mt-0.5">
+                      ㄴㄴ 이건 못참
+                    </div>
+                  </button>
+                </div>
+              </>
             )}
           </div>
         </div>
@@ -180,14 +209,16 @@ export default function ChallengeSlider({ category, items, isAuthed }: Props) {
             <button
               type="button"
               onClick={() => change(-1)}
-              className="brutal py-3 bg-(--paper) font-(family-name:--font-accent) text-[13px] tracking-wider"
+              className="brutal py-3 bg-(--paper) font-(family-name:--font-accent) text-[13px] tracking-wider text-(--ink) min-h-[44px]"
+              aria-label="이전 챌린지"
             >
               ← PREV
             </button>
             <button
               type="button"
               onClick={() => change(1)}
-              className="brutal py-3 bg-(--acid-lime) font-(family-name:--font-accent) text-[13px] tracking-wider"
+              className="brutal py-3 bg-(--acid-lime) font-(family-name:--font-accent) text-[13px] tracking-wider text-(--ink) min-h-[44px]"
+              aria-label="다음 챌린지"
             >
               NEXT →
             </button>
@@ -199,7 +230,7 @@ export default function ChallengeSlider({ category, items, isAuthed }: Props) {
         questionId={current.id}
         open={sheetOpen}
         onClose={() => setSheetOpen(false)}
-        isAuthed={isAuthed}
+        initialNickname={initialNickname}
       />
     </>
   );

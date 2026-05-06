@@ -1,9 +1,11 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getAnonId, getStoredNickname } from "@/lib/anon";
 import ChallengeSlider, {
   type QuestionWithMeta,
 } from "@/components/ChallengeSlider";
 import { seedFromDate, shuffleWithSeed } from "@/lib/shuffle";
+import { getHookName } from "@/lib/category-style";
 
 export const revalidate = 30;
 
@@ -15,35 +17,36 @@ export default async function CategoryPage({
   const { slug } = await params;
   const supabase = await createClient();
 
-  const { data: category } = await supabase
+  const { data: category, error: catErr } = await supabase
     .from("categories")
     .select("id, slug, name, emoji")
     .eq("slug", slug)
     .maybeSingle();
 
+  if (catErr) console.error("[category] category fetch error:", catErr);
   if (!category) notFound();
 
-  const { data: questions } = await supabase
+  const { data: questions, error: qErr } = await supabase
     .from("questions")
-    .select(
-      "id, content, vote_count, yes_count, difficulty",
-    )
+    .select("id, content, vote_count, yes_count, difficulty")
     .eq("category_id", category.id)
     .eq("status", "approved")
     .order("vote_count", { ascending: false });
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  if (qErr) console.error("[category] questions fetch error:", qErr);
+
+  const anonId = await getAnonId();
+  const nickname = (await getStoredNickname()) ?? "";
 
   let myVotes: Record<string, boolean> = {};
-  if (user && questions && questions.length > 0) {
+  if (questions && questions.length > 0) {
     const ids = questions.map((q) => q.id);
-    const { data: votes } = await supabase
+    const { data: votes, error: vErr } = await supabase
       .from("votes")
       .select("question_id, choice")
-      .eq("user_id", user.id)
+      .eq("anon_id", anonId)
       .in("question_id", ids);
+    if (vErr) console.error("[category] votes fetch error:", vErr);
     myVotes = Object.fromEntries(
       (votes ?? []).map((v) => [v.question_id, v.choice]),
     );
@@ -62,9 +65,12 @@ export default async function CategoryPage({
 
   return (
     <ChallengeSlider
-      category={{ name: category.name, emoji: category.emoji }}
+      category={{
+        name: getHookName(category.slug, category.name),
+        emoji: category.emoji,
+      }}
       items={items}
-      isAuthed={!!user}
+      initialNickname={nickname}
     />
   );
 }

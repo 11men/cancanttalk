@@ -1,32 +1,34 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
+
+type Result = { ok: true } | { ok: false; error: string };
+
+async function isAdmin(): Promise<boolean> {
+  const expected = process.env.ADMIN_KEY;
+  if (!expected) return false;
+  const store = await cookies();
+  return store.get("admin_key")?.value === expected;
+}
 
 export async function moderateQuestion(
   questionId: string,
   action: "approve" | "reject",
-) {
+): Promise<Result> {
+  if (!(await isAdmin())) return { ok: false, error: "권한이 없습니다" };
+
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { ok: false, error: "로그인이 필요합니다" };
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("is_admin")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (!profile?.is_admin) return { ok: false, error: "권한이 없습니다" };
-
   const { error } = await supabase
     .from("questions")
     .update({ status: action === "approve" ? "approved" : "rejected" })
     .eq("id", questionId);
 
-  if (error) return { ok: false, error: error.message };
+  if (error) {
+    console.error("[moderateQuestion] supabase error:", error);
+    return { ok: false, error: error.message };
+  }
 
   revalidatePath("/admin");
   return { ok: true };

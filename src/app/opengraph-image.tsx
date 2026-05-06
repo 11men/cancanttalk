@@ -23,6 +23,7 @@ export default async function Image() {
       >
         <div
           style={{
+            display: "flex",
             position: "absolute",
             top: 40,
             left: 40,
@@ -50,43 +51,52 @@ export default async function Image() {
             alignItems: "center",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-            <span>이게</span>
-            <span
-              style={{
-                background: "#ff2e93",
-                color: "#fffcef",
-                padding: "0 16px",
-                transform: "rotate(-2deg)",
-                display: "flex",
-              }}
-            >
-              가능?
-            </span>
+          <div
+            style={{
+              display: "flex",
+              background: "#ff2e93",
+              color: "#fffcef",
+              padding: "0 16px",
+              transform: "rotate(-2deg)",
+            }}
+          >
+            이게 가능?
           </div>
-          <div style={{ marginTop: 8, display: "flex" }}>
-            <span
-              style={{
-                background: "#0a0a0a",
-                color: "#d4ff00",
-                padding: "0 16px",
-                transform: "rotate(1deg)",
-                display: "flex",
-              }}
-            >
-              불가능?
-            </span>
+          <div
+            style={{
+              display: "flex",
+              marginTop: 16,
+              background: "#0a0a0a",
+              color: "#d4ff00",
+              padding: "0 16px",
+              transform: "rotate(1deg)",
+            }}
+          >
+            불가능?
           </div>
         </div>
         <div
           style={{
-            marginTop: 40,
-            fontSize: 28,
-            color: "#555",
+            display: "flex",
+            marginTop: 36,
+            fontSize: 32,
+            color: "#0a0a0a",
+            fontWeight: 900,
+            letterSpacing: -1,
+          }}
+        >
+          다들 갈렸음 · 너는?
+        </div>
+        <div
+          style={{
+            display: "flex",
+            marginTop: 14,
+            fontSize: 22,
+            color: "#555555",
             fontFamily: "monospace",
           }}
         >
-          1020 찐찐찐 도파민 · 실시간 투표장
+          익명 / 1020 / 결과는 들어와야 보임
         </div>
       </div>
     ),

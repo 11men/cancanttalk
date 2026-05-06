@@ -33,8 +33,14 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# local handoff / work notes (not for commit)
+HANDOFF.md
+
 # vercel
 .vercel
+
+# playwright mcp 임시 로그
+.playwright-mcp
 
 # typescript
 *.tsbuildinfo

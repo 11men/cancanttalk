@@ -5,23 +5,43 @@ import {
   submitQuestion,
   type SubmitState,
 } from "@/actions/submit-question";
+import { getHookName } from "@/lib/category-style";
 
 type Category = { id: number; slug: string; name: string; emoji: string };
-type Props = { categories: Category[] };
+type Props = { categories: Category[]; initialNickname?: string };
 
 const initial: SubmitState = { ok: false };
 
-export default function SubmitForm({ categories }: Props) {
+export default function SubmitForm({ categories, initialNickname }: Props) {
   const [state, formAction, isPending] = useActionState(
     submitQuestion,
     initial,
   );
 
   return (
-    <form action={formAction} className="brutal brutal-lg bg-(--paper) p-5 space-y-5">
+    <form action={formAction} className="brutal brutal-lg bg-(--paper) p-5 sm:p-7 space-y-7">
       <label className="block">
-        <span className="sticker bg-(--acid-lime) mb-2 inline-block">
-          01 / CATEGORY
+        <span className="sticker bg-(--acid-lime) mb-3 inline-block">
+          01 / NICKNAME
+        </span>
+        <input
+          name="nickname"
+          defaultValue={initialNickname}
+          required
+          maxLength={20}
+          placeholder="닉네임 (최대 20자)"
+          className="brutal w-full bg-(--paper) px-4 py-3 font-(family-name:--font-display) text-[18px] outline-none"
+        />
+        {state.fieldErrors?.nickname && (
+          <p className="text-xs font-mono text-(--no) mt-1">
+            ! {state.fieldErrors.nickname}
+          </p>
+        )}
+      </label>
+
+      <label className="block">
+        <span className="sticker bg-(--hot-cyan) mb-3 inline-block">
+          02 / CATEGORY
         </span>
         <select
           name="categoryId"
@@ -31,7 +51,7 @@ export default function SubmitForm({ categories }: Props) {
         >
           {categories.map((c) => (
             <option key={c.id} value={c.id}>
-              {c.emoji} {c.name}
+              {c.emoji} {getHookName(c.slug, c.name)}
             </option>
           ))}
         </select>
@@ -43,8 +63,8 @@ export default function SubmitForm({ categories }: Props) {
       </label>
 
       <label className="block">
-        <span className="sticker bg-(--hot-cyan) mb-2 inline-block">
-          02 / QUESTION
+        <span className="sticker bg-(--acid-pink) text-(--paper) mb-3 inline-block">
+          03 / QUESTION
         </span>
         <textarea
           name="content"
@@ -52,11 +72,13 @@ export default function SubmitForm({ categories }: Props) {
           minLength={5}
           maxLength={300}
           rows={5}
-          placeholder="예) 지하철에서 최애 주제가 크게 틀고 리듬타기 가능?"
+          placeholder="예) 지하철에서 최애 노래 크게 틀고 리듬타기 가능?"
           className="brutal w-full bg-(--paper) px-4 py-3 text-sm resize-none outline-none font-medium leading-relaxed"
         />
-        <p className="text-[10px] font-mono text-(--ink)/60 mt-1.5">
+        <p className="text-[10px] font-mono text-(--ink)/60 mt-1.5 leading-5">
           ★ 질문은 &quot;~ 가능?&quot; 으로 끝내야 함 (국룰)
+          <br />
+          ★ 12자 이상부터 떡상각
         </p>
         {state.fieldErrors?.content && (
           <p className="text-xs font-mono text-(--no) mt-1">
@@ -66,8 +88,8 @@ export default function SubmitForm({ categories }: Props) {
       </label>
 
       <label className="block">
-        <span className="sticker bg-(--acid-pink) text-(--paper) mb-2 inline-block">
-          03 / SPICE LEVEL
+        <span className="sticker bg-(--neon-purple) text-(--paper) mb-3 inline-block">
+          04 / SPICE LEVEL
         </span>
         <input
           type="number"
@@ -93,7 +115,7 @@ export default function SubmitForm({ categories }: Props) {
         disabled={isPending}
         className="brutal brutal-lg w-full py-5 bg-(--ink) text-(--paper) font-(family-name:--font-display) text-[22px] tracking-tight hover-glitch disabled:opacity-50"
       >
-        {isPending ? "전송 중..." : "제보 발사 →"}
+        {isPending ? "던지는 중..." : "던지기 →"}
       </button>
     </form>
   );

@@ -48,3 +48,8 @@ HANDOFF.md
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# agent screenshots
+*.png
+!public/**/*.png
+!docs/**/*.png

@@ -51,8 +51,9 @@ export default async function HomePage() {
 
   return (
     <div className="relative flex-1 w-full max-w-6xl mx-auto">
-      <section className="px-5 sm:px-6 pt-6 sm:pt-10 pb-4 sm:pb-6">
-        <p className="font-(family-name:--font-accent) text-[11px] sm:text-[13px] tracking-[0.2em] text-(--ink)/70 mb-1">
+      {/* Hero */}
+      <section className="px-5 sm:px-6 pt-12 sm:pt-20 pb-4">
+        <p className="font-(family-name:--font-accent) text-[11px] sm:text-[13px] tracking-[0.2em] text-(--ink)/70 mb-2">
           TEST YOUR LIMIT ◆
         </p>
         <h2
@@ -64,7 +65,7 @@ export default async function HomePage() {
           <br />
           <span className="inline-block bg-(--ink) px-2 text-(--acid-lime) rotate-1 mt-1">불가능?</span>
         </h2>
-        <p className="mt-3 sm:mt-5 text-[15px] sm:text-[17px] text-(--ink) font-bold leading-relaxed max-w-xl">
+        <p className="mt-5 sm:mt-7 text-[15px] sm:text-[17px] text-(--ink) font-bold leading-relaxed max-w-xl">
           다들 생각만 하고 못 물어본 거,
           <br />
           여기서 익명으로 투표해.
@@ -77,62 +78,85 @@ export default async function HomePage() {
       {categories.length === 0 ? (
         <EmptyState />
       ) : (
-        <section className="px-5 sm:px-6 pb-5 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5">
-          {categories.map((c, i) => {
-            const style = CATEGORY_STYLE[c.slug] ?? CATEGORY_STYLE.love;
-            return (
-              <Link
-                key={c.id}
-                href={`/categories/${c.slug}`}
-                className={`brutal group relative block p-4 pt-10 pb-5 ${style.bg} animate-slide-up stagger-${(i % 4) + 1}`}
-              >
-                <span className="sticker absolute -top-3 left-3 bg-(--paper) -rotate-6">
-                  {style.tag}
-                </span>
-                <div className={`text-5xl mb-3 transition-transform ${style.rotate} group-hover:scale-110`}>
-                  {c.emoji}
-                </div>
-                <div
-                  className="font-(family-name:--font-display) text-[22px] leading-[1.05]"
-                  style={{ WebkitTextStroke: "0.3px var(--ink)" }}
+        <>
+          {/* 섹션 라벨 */}
+          <div className="section-gap px-5 sm:px-6">
+            <p className="font-(family-name:--font-accent) text-[11px] tracking-[0.2em] text-(--ink)/60">
+              01 — CATEGORIES
+            </p>
+            <div className="mt-1 h-[2px] w-12 bg-(--ink)" />
+          </div>
+
+          {/* 카테고리 카드 — paper 배경 통일, 보더만 카테고리 색 (1 hero color per view 원칙) */}
+          <section className="mt-6 px-5 sm:px-6 grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-7">
+            {categories.map((c, i) => {
+              const style = CATEGORY_STYLE[c.slug] ?? CATEGORY_STYLE.love;
+              return (
+                <Link
+                  key={c.id}
+                  href={`/categories/${c.slug}`}
+                  className={`brutal group relative block bg-(--paper) p-5 pt-10 pb-6 animate-slide-up stagger-${(i % 4) + 1}`}
+                  style={{
+                    borderColor: "var(--ink)",
+                  }}
                 >
-                  {style.hookName ?? c.name}
-                </div>
-                <div className="mt-2 text-[11px] font-mono font-bold text-(--ink)/75">
-                  [{String(c.question_count).padStart(2, "0")} 질문]
-                </div>
-              </Link>
-            );
-          })}
-        </section>
+                  <span className={`sticker absolute -top-3 left-3 ${style.bg} -rotate-6`}>
+                    {style.tag}
+                  </span>
+                  <div className={`text-5xl mb-3 transition-transform ${style.rotate} group-hover:scale-110`}>
+                    {c.emoji}
+                  </div>
+                  <div
+                    className="font-(family-name:--font-display) text-[26px] leading-[1.05]"
+                    style={{ WebkitTextStroke: "0.3px var(--ink)" }}
+                  >
+                    {style.hookName ?? c.name}
+                  </div>
+                  <div className="mt-2 text-[11px] font-mono font-bold text-(--ink)/60">
+                    [{String(c.question_count).padStart(2, "0")} 질문]
+                  </div>
+                </Link>
+              );
+            })}
+          </section>
+        </>
       )}
 
       {categories.length > 0 && (
-        <section className="px-5 sm:px-6 pb-10">
-          <Link
-            href="/submit"
-            className="brutal brutal-lg block bg-(--ink) text-(--paper) p-5 sm:p-6 hover-glitch relative overflow-hidden"
-          >
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <div className="font-(family-name:--font-accent) text-[12px] sm:text-[13px] text-(--acid-lime) tracking-[0.2em] mb-1">
-                  UGC ◆ 채택되면 첫 화면에 박힘
-                </div>
-                <div className="font-(family-name:--font-display) text-[24px] sm:text-[28px] leading-[1] text-(--paper)">
-                  네가 본 미친 상황 던져
-                </div>
-              </div>
-              <span className="text-3xl sm:text-4xl">→</span>
-            </div>
-          </Link>
-
-          <div className="mt-8 flex items-center gap-3 justify-center">
-            <span className="sticker bg-(--acid-lime)">@TEAM2</span>
-            <span className="text-[10px] font-mono text-(--ink)/60">
-              v0.1.0 / beta
-            </span>
+        <>
+          <div className="section-gap px-5 sm:px-6">
+            <p className="font-(family-name:--font-accent) text-[11px] tracking-[0.2em] text-(--ink)/60">
+              02 — UGC
+            </p>
+            <div className="mt-1 h-[2px] w-12 bg-(--ink)" />
           </div>
-        </section>
+
+          <section className="mt-6 px-5 sm:px-6 pb-20">
+            <Link
+              href="/submit"
+              className="brutal brutal-lg block bg-(--ink) text-(--paper) p-6 sm:p-8 hover-glitch relative overflow-hidden"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <div className="font-(family-name:--font-accent) text-[12px] sm:text-[13px] text-(--acid-lime) tracking-[0.2em] mb-2">
+                    채택되면 첫 화면에 박힘
+                  </div>
+                  <div className="font-(family-name:--font-display) text-[24px] sm:text-[32px] leading-[1.05] text-(--paper)">
+                    네가 본 미친 상황 던져
+                  </div>
+                </div>
+                <span className="text-3xl sm:text-4xl shrink-0">→</span>
+              </div>
+            </Link>
+
+            <div className="mt-12 flex items-center gap-3 justify-center">
+              <span className="sticker bg-(--acid-lime)">@TEAM2</span>
+              <span className="text-[10px] font-mono text-(--ink)/60">
+                v0.1.0 / beta
+              </span>
+            </div>
+          </section>
+        </>
       )}
     </div>
   );

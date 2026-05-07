@@ -7,16 +7,17 @@ const ITEMS = [
   "⚡ 익명이라 솔직",
 ];
 
+// 톤다운: 페이지 진입 첫인상을 깔끔하게 — 높이 축소, paper 배경에 ink 텍스트
 export default function Marquee() {
   const REPEAT = 3;
   return (
-    <div className="bg-(--acid-pink) border-b-[3px] border-(--ink) overflow-hidden py-2 relative z-20 w-full">
+    <div className="bg-(--paper) border-b-2 border-(--ink) overflow-hidden py-1 relative z-20 w-full">
       <div className="marquee-track">
         {Array.from({ length: REPEAT }).flatMap((_, r) =>
           ITEMS.map((t, i) => (
             <span
               key={`${r}-${i}-${t}`}
-              className="font-(family-name:--font-accent) text-[13px] text-(--paper) whitespace-nowrap"
+              className="font-(family-name:--font-accent) text-[11px] text-(--ink)/60 whitespace-nowrap"
             >
               {t}
             </span>

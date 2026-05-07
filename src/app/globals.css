@@ -74,10 +74,10 @@ body {
 body {
   background-color: var(--paper);
   background-image:
-    radial-gradient(circle at 1px 1px, rgba(10, 10, 10, 0.08) 1px, transparent 0),
+    radial-gradient(circle at 1px 1px, rgba(10, 10, 10, 0.05) 1px, transparent 0),
     linear-gradient(180deg, var(--paper) 0%, var(--paper-tint) 100%);
   background-size:
-    20px 20px,
+    32px 32px,
     100% 100%;
   background-attachment: fixed;
   position: relative;
@@ -89,9 +89,21 @@ body::before {
   inset: 0;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.06;
+  opacity: 0.04;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
   mix-blend-mode: multiply;
+}
+
+/* ============================================================================
+ * 섹션 리듬: 페이지 메이저 블록 사이 호흡감
+ * ========================================================================= */
+.section-gap {
+  margin-top: 5rem; /* 80px mobile */
+}
+@media (min-width: 768px) {
+  .section-gap {
+    margin-top: 7.5rem; /* 120px desktop */
+  }
 }
 
 /* ============================================================================

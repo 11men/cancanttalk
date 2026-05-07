@@ -168,7 +168,7 @@ export default function ChallengeSlider({ category, items, initialNickname }: Pr
             ) : (
               <>
                 <p className="font-mono text-[11px] text-(--ink)/70 mb-2.5 text-center">
-                  ↳ {getCardTease(totalCount, yesCount)}
+                  ↳ {getCardTease(totalCount, yesCount, current.id)}
                 </p>
                 <div className="grid grid-cols-2 gap-3">
                   <button

@@ -17,15 +17,21 @@ export default async function CategoryPage({
   const { slug } = await params;
   const supabase = await createClient();
 
-  const { data: category, error: catErr } = await supabase
-    .from("categories")
-    .select("id, slug, name, emoji")
-    .eq("slug", slug)
-    .maybeSingle();
+  // 1) 쿠키 / 카테고리 → 병렬. anonId·nickname은 카테고리 결과를 안 기다려도 됨
+  const [{ data: category, error: catErr }, anonId, nickname] = await Promise.all([
+    supabase
+      .from("categories")
+      .select("id, slug, name, emoji")
+      .eq("slug", slug)
+      .maybeSingle(),
+    getAnonId(),
+    getStoredNickname().then((n) => n ?? ""),
+  ]);
 
   if (catErr) console.error("[category] category fetch error:", catErr);
   if (!category) notFound();
 
+  // 2) questions 조회 (category id 의존)
   const { data: questions, error: qErr } = await supabase
     .from("questions")
     .select("id, content, vote_count, yes_count, difficulty")
@@ -35,9 +41,7 @@ export default async function CategoryPage({
 
   if (qErr) console.error("[category] questions fetch error:", qErr);
 
-  const anonId = await getAnonId();
-  const nickname = (await getStoredNickname()) ?? "";
-
+  // 3) myVotes는 questions 결과 의존 — 별도 쿼리
   let myVotes: Record<string, boolean> = {};
   if (questions && questions.length > 0) {
     const ids = questions.map((q) => q.id);

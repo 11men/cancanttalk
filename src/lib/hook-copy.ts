@@ -10,10 +10,24 @@ const FALLBACK_TEASE = [
   "익명이라 솔직 모드",
 ];
 
-// 투표 전 카드 하단 미끼 (vote_count 기반)
-export function getCardTease(voteCount: number, yesCount: number): string {
+// 투표 전 카드 하단 미끼 (vote_count 기반).
+// vote_count=0 케이스는 questionId 같은 안정 seed로 fallback을 결정 — Math.random()을
+// 쓰면 SSR/CSR이 다른 값을 골라 hydration mismatch(React error #418)가 발생한다.
+function pickFallback(seed: string): string {
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) {
+    h = (h * 31 + seed.charCodeAt(i)) | 0;
+  }
+  return FALLBACK_TEASE[Math.abs(h) % FALLBACK_TEASE.length];
+}
+
+export function getCardTease(
+  voteCount: number,
+  yesCount: number,
+  seed: string = "",
+): string {
   if (voteCount < 1) {
-    return FALLBACK_TEASE[Math.floor(Math.random() * FALLBACK_TEASE.length)];
+    return pickFallback(seed);
   }
   if (voteCount < 5) return `${voteCount}명 갈렸음 · 너가 결정타`;
 

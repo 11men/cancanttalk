@@ -27,7 +27,7 @@ async function getHot(): Promise<HotQuestion[]> {
   return ((data ?? []) as unknown as HotQuestion[]).filter((q) => q.vote_count > 0);
 }
 
-const MEDAL_BG = ["bg-(--acid-lime)", "bg-(--hot-cyan)", "bg-(--acid-pink)"];
+const MEDAL_BG = ["bg-(--acid-lime)/45", "bg-(--hot-cyan)/40", "bg-(--acid-pink)/35"];
 
 export default async function RankingPage() {
   const hot = await getHot();
@@ -118,7 +118,7 @@ function TopCard({ q, rank, delay }: { q: HotQuestion; rank: number; delay: numb
   const bg = MEDAL_BG[rank - 1] ?? "bg-(--paper-tint)";
   return (
     <article
-      className="brutal brutal-lg bg-(--paper) p-6 sm:p-7 animate-slide-up"
+      className="brutal bg-(--paper) p-6 sm:p-7 animate-slide-up"
       style={{ animationDelay: `${delay}ms` }}
     >
       <div className="flex items-start gap-4">
@@ -200,13 +200,13 @@ function PctBar({
   return (
     <div className={compact ? "mt-2" : "mt-3"}>
       <div className={`flex ${compact ? "h-1" : "h-1.5"} bg-(--ink)/10 overflow-hidden`}>
-        <div className="bg-(--yes)" style={{ width: `${yesPct}%` }} />
-        <div className="bg-(--no)" style={{ width: `${noPct}%` }} />
+        <div className="bg-(--yes)/70" style={{ width: `${yesPct}%` }} />
+        <div className="bg-(--no)/70" style={{ width: `${noPct}%` }} />
       </div>
       <div className={`mt-1.5 flex items-center gap-3 font-mono text-[10px] text-(--ink)/60`}>
         <span>🗳️ <b className="text-(--ink)">{voteCount}</b>표</span>
-        <span className="text-(--yes) font-bold">{yesPct}%</span>
-        <span className="text-(--no) font-bold">{noPct}%</span>
+        <span className="text-(--yes)/80 font-bold">{yesPct}%</span>
+        <span className="text-(--no)/80 font-bold">{noPct}%</span>
       </div>
     </div>
   );
